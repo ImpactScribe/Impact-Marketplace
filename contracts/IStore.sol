@@ -5,7 +5,7 @@ interface IStore {
     struct Listing {
         uint256 id;
         uint256 wei_price;
-        address payable owner;
+        address owner;
     }
 
     event Claim(
