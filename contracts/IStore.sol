@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 
 interface IStore {
     struct Listing {
-        uint256 id;
+        uint256 tokenId;
         uint256 wei_price;
         address owner;
     }
@@ -16,15 +16,15 @@ interface IStore {
 
     event CreatedListing(
         address indexed owner,
-        uint256 indexed id,
+        uint256 indexed tokenId,
         uint256 indexed wei_price
     );
 
-    event RemovedListing(address indexed owner, uint256 indexed id);
+    event RemovedListing(address indexed owner, uint256 indexed tokenId);
 
     event PurchasedListing(
         address indexed buyer,
-        uint256 indexed id,
+        uint256 indexed tokenId,
         uint256 indexed wei_price
     );
 
@@ -34,7 +34,7 @@ interface IStore {
 
     function setNftContract(address registry) external;
 
-    function createListing(uint256 id, uint256 wei_price) external payable;
+    function createListing(uint256 tokenId, uint256 wei_price) external payable;
 
     function updateListingPrice(uint256 index, uint256 wei_price) external;
 

@@ -64,16 +64,16 @@ contract Store is
     }
 
     function createListing(
-        uint256 id,
+        uint256 tokenId,
         uint256 wei_price
     ) external payable nonReentrant whenNotPaused {
         if (msg.value < wei_listingFee) revert FeeError();
         REVENUE[address(0)] = msg.value;
 
-        address owner = nftContract.ownerOf(id);
-        listings.push(Listing(id, wei_price, payable(owner)));
-        nftContract.safeTransferFrom(owner, address(this), id);
-        emit CreatedListing(owner, id, wei_price);
+        address owner = nftContract.ownerOf(tokenId);
+        listings.push(Listing(tokenId, wei_price, payable(owner)));
+        nftContract.safeTransferFrom(owner, address(this), tokenId);
+        emit CreatedListing(owner, tokenId, wei_price);
     }
 
     function updateListingPrice(
@@ -85,7 +85,7 @@ contract Store is
         listings[index].wei_price = wei_price;
         emit CreatedListing(
             listings[index].owner,
-            listings[index].id,
+            listings[index].tokenId,
             wei_price
         );
     }
@@ -94,18 +94,18 @@ contract Store is
         if (index > listings.length) revert IndexError();
         if (msg.sender != listings[index].owner) revert UnauthorizedError();
         Listing memory listing = listings[index];
-        _removeListing(index, listing.id);
-        emit RemovedListing(listing.owner, listing.id);
+        _removeListing(index, listing.tokenId);
+        emit RemovedListing(listing.owner, listing.tokenId);
     }
 
     function purchaseListing(uint256 index) external payable whenNotPaused {
         Listing memory listing = listings[index];
         if (msg.value < listing.wei_price) revert PaymentError();
 
-        _removeListing(index, listing.id);
+        _removeListing(index, listing.tokenId);
         REVENUE[listing.owner] += msg.value;
-        emit PurchasedListing(msg.sender, listing.id, msg.value);
-        emit RemovedListing(listing.owner, listing.id);
+        emit PurchasedListing(msg.sender, listing.tokenId, msg.value);
+        emit RemovedListing(listing.owner, listing.tokenId);
     }
 
     function withdrawRevenue() external whenNotPaused {
@@ -145,8 +145,8 @@ contract Store is
         _unpause();
     }
 
-    function _removeListing(uint256 id, uint256 index) private whenNotPaused {
-        nftContract.safeTransferFrom(address(this), msg.sender, id);
+    function _removeListing(uint256 tokenId, uint256 index) private whenNotPaused {
+        nftContract.safeTransferFrom(address(this), msg.sender, tokenId);
         listings[index] = listings[listings.length - 1];
         listings.pop();
     }
