@@ -25,7 +25,6 @@ contract Store is
 {
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
     uint256 public wei_listingFee = 1e18 wei;
     address public feeAddress;
@@ -39,7 +38,6 @@ contract Store is
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
-        _grantRole(UPGRADER_ROLE, msg.sender);
         _grantRole(MANAGER_ROLE, msg.sender);
 
         nftContract = IERC721(nftAddress);
