@@ -26,7 +26,7 @@ contract Store is
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
-    uint256 public wei_listingFee = 1e18 wei;
+    uint256 public listingFee = 10 gwei;
     address public feeAddress;
     IERC721 nftContract;
 
@@ -45,9 +45,9 @@ contract Store is
     }
 
     function setListingFee(
-        uint256 wei_fee
+        uint256 fee
     ) external onlyRole(MANAGER_ROLE) whenNotPaused {
-        wei_listingFee = wei_fee;
+        listingFee = fee;
     }
 
     function setFeeAddress(
@@ -65,28 +65,28 @@ contract Store is
 
     function createListing(
         uint256 tokenId,
-        uint256 wei_price
+        uint256 price
     ) external payable nonReentrant whenNotPaused {
-        if (msg.value < wei_listingFee) revert FeeError();
+        if (msg.value < listingFee) revert FeeError();
         REVENUE[address(0)] = msg.value;
 
         address owner = nftContract.ownerOf(tokenId);
-        listings.push(Listing(tokenId, wei_price, payable(owner)));
+        listings.push(Listing(tokenId, price, payable(owner)));
         nftContract.safeTransferFrom(owner, address(this), tokenId);
-        emit CreatedListing(owner, tokenId, wei_price);
+        emit CreatedListing(owner, tokenId, price);
     }
 
     function updateListingPrice(
         uint256 index,
-        uint256 wei_price
+        uint256 price
     ) external whenNotPaused {
         if (index > listings.length) revert IndexError();
         if (msg.sender != listings[index].owner) revert UnauthorizedError();
-        listings[index].wei_price = wei_price;
+        listings[index].price = price;
         emit CreatedListing(
             listings[index].owner,
             listings[index].tokenId,
-            wei_price
+            price
         );
     }
 
@@ -100,7 +100,7 @@ contract Store is
 
     function purchaseListing(uint256 index) external payable whenNotPaused {
         Listing memory listing = listings[index];
-        if (msg.value < listing.wei_price) revert PaymentError();
+        if (msg.value < listing.price) revert PaymentError();
 
         _removeListing(index, listing.tokenId);
         REVENUE[listing.owner] += msg.value;
@@ -145,7 +145,10 @@ contract Store is
         _unpause();
     }
 
-    function _removeListing(uint256 tokenId, uint256 index) private whenNotPaused {
+    function _removeListing(
+        uint256 tokenId,
+        uint256 index
+    ) private whenNotPaused {
         nftContract.safeTransferFrom(address(this), msg.sender, tokenId);
         listings[index] = listings[listings.length - 1];
         listings.pop();
