@@ -146,8 +146,8 @@ contract Store is
     }
 
     function _removeListing(
-        uint256 tokenId,
-        uint256 index
+        uint256 index,
+        uint256 tokenId
     ) private whenNotPaused {
         nftContract.safeTransferFrom(address(this), msg.sender, tokenId);
         listings[index] = listings[listings.length - 1];
