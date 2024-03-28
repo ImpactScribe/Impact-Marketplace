@@ -19,21 +19,18 @@ error UnauthorizedError();
 contract Store is
     IStore,
     Pausable,
-    AccessControl,
     ERC721Holder,
+    AccessControl,
     ReentrancyGuard
 {
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-
-    uint256 public listingFee = 10 gwei;
-    address public feeAddress;
     IERC721 nftContract;
 
     Listing[] listings;
     mapping(address => uint256) private REVENUE;
 
-    constructor(address nftAddress, address feeAccount) {
+    constructor(address nftAddress) {
         if (nftAddress == address(0)) revert AddressError();
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -41,19 +38,6 @@ contract Store is
         _grantRole(MANAGER_ROLE, msg.sender);
 
         nftContract = IERC721(nftAddress);
-        feeAddress = feeAccount;
-    }
-
-    function setListingFee(
-        uint256 fee
-    ) external onlyRole(MANAGER_ROLE) whenNotPaused {
-        listingFee = fee;
-    }
-
-    function setFeeAddress(
-        address feeAccount
-    ) external onlyRole(MANAGER_ROLE) whenNotPaused {
-        feeAddress = feeAccount;
     }
 
     function setNftContract(
@@ -66,10 +50,7 @@ contract Store is
     function createListing(
         uint256 tokenId,
         uint256 price
-    ) external payable nonReentrant whenNotPaused {
-        if (msg.value < listingFee) revert FeeError();
-        REVENUE[address(0)] = msg.value;
-
+    ) external nonReentrant whenNotPaused {
         address owner = nftContract.ownerOf(tokenId);
         listings.push(Listing(tokenId, price, payable(owner)));
         nftContract.safeTransferFrom(owner, address(this), tokenId);

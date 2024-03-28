@@ -28,13 +28,9 @@ interface IStore {
         uint256 indexed price
     );
 
-    function setListingFee(uint256 fee) external;
-
-    function setFeeAddress(address feeAccount) external;
-
     function setNftContract(address registry) external;
 
-    function createListing(uint256 tokenId, uint256 price) external payable;
+    function createListing(uint256 tokenId, uint256 price) external;
 
     function updateListingPrice(uint256 index, uint256 price) external;
 
