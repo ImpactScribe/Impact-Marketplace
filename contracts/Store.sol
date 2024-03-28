@@ -25,9 +25,9 @@ contract Store is
 {
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    IERC721 nftContract;
+    IERC721 public nftContract;
 
-    Listing[] listings;
+    Listing[] public listings;
     mapping(address => uint256) private REVENUE;
 
     constructor(address nftAddress) {
